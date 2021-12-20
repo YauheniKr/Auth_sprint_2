@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:13.4-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+    env_file:
+      - cinema_admin/settings/.env
+
+  auth_api:
+    container_name: auth_api
+    build:
+      context: src
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - 8000:8000
+    env_file:
+      - src/core/.env
+
+  redis:
+    container_name: redis_container
+    image: redis:6.2.6
+    ports:
+      - 6379:6379
+
+volumes:
+  elasticdata:
+  postgres_data:
