@@ -6,7 +6,7 @@ services:
     ports:
       - 5432:5432
     env_file:
-      - cinema_admin/settings/.env
+      - src/core/.env
 
   auth_api:
     container_name: auth_api
