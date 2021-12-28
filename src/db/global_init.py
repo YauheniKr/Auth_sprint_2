@@ -31,5 +31,4 @@ def create_session():
 
     if __factory is None:
         global_init()
-
     return __factory()
