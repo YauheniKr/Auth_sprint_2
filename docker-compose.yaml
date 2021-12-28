@@ -28,5 +28,4 @@ services:
       - 6379:6379
 
 volumes:
-  elasticdata:
   postgres_data:
