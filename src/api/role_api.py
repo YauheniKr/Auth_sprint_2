@@ -1,10 +1,11 @@
 from http import HTTPStatus
 
-import flask
 from flask import request
+from flask_pydantic import validate
 from flask_restful import Resource
 
 from src.db.global_init import create_session
+from src.models.pydantic_models import RoleModel, RoleUserModel
 from src.services.role import RoleRequest, RolesRequest, RoleUserRequest
 
 
@@ -84,7 +85,7 @@ class RoleGetUpdateDelete(Resource):
     """
 
     # method_decorators = [jwt_required()]
-
+    @validate()
     def get(self, role_id):
         session = create_session()
         role = RoleRequest(role_id, session)
@@ -92,8 +93,9 @@ class RoleGetUpdateDelete(Resource):
         session.close()
         if not role:
             return f'Не найдена роль с id {role_id}', HTTPStatus.NOT_FOUND
-        return flask.jsonify(role.to_json())
+        return RoleModel(id=role.id, role_name=role.role_name, role_weight=role.role_weight)
 
+    @validate()
     def patch(self, role_id):
         json_data = request.get_json(force=True)
         session = create_session()
@@ -102,8 +104,9 @@ class RoleGetUpdateDelete(Resource):
         if not role:
             return f'Не найдена роль с id {role_id}', HTTPStatus.NOT_FOUND
         session.close()
-        return role
+        return RoleModel(id=role.id, role_name=role.role_name, role_weight=role.role_weight)
 
+    @validate()
     def delete(self, role_id):
         session = create_session()
         role = RoleRequest(role_id, session)
@@ -111,7 +114,7 @@ class RoleGetUpdateDelete(Resource):
         if not role:
             return f'Не найдена роль с id {role_id}', HTTPStatus.NOT_FOUND
         session.close()
-        return {"msg": "role deleted"}
+        return {"msg": "Роль удалена"}
 
 
 class RoleCreate(Resource):
@@ -122,18 +125,19 @@ class RoleCreate(Resource):
         role = RolesRequest(session)
         role = role.create_role(json_data)
         if not role:
-            return f'Роль с даными параметрами уже существует', HTTPStatus.CONFLICT
+            return f'Роль с данными параметрами уже существует', HTTPStatus.CONFLICT
         session.close()
-        return {'msg': 'role created'}
+        return {'msg': 'Роль создана'}
 
 
 class RolesGet(Resource):
 
-    def get(self):
+    @validate(response_many=True)
+    def get(self) -> list[RoleModel]:
         session = create_session()
         roles = RolesRequest(session)
         roles = roles.get_roles()
-        roles = [role.to_json() for role in roles]
+        roles = [RoleModel(id=role.id, role_name=role.role_name, role_weight=role.role_weight) for role in roles]
         return roles
 
 
@@ -163,9 +167,10 @@ class RoleUserCreateDelete(Resource):
 
 class CheckUserRole(Resource):
 
+    @validate()
     def get(self):
         session = create_session()
         json_data = request.get_json(force=True)
         user_role_status = RoleUserRequest(session)
         user_role_status = user_role_status.get_user_status(json_data)
-        return user_role_status
+        return RoleUserModel(role_name=user_role_status['role_name'], role_weight=user_role_status['role_weight'])
