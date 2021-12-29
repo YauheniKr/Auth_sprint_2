@@ -1,6 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 
-from src.models.model_role import Role, Role_User
+from src.models.model_role import Role, RoleUser
 from src.models.model_user import User
 
 
@@ -74,11 +74,11 @@ class RoleUserRequest:
         return user_status
 
     def user_add_role(self, create_data):
-        role_user_exists = self.session.query(Role_User).filter_by(**create_data).first()
+        role_user_exists = self.session.query(RoleUser).filter_by(**create_data).first()
         self.session.commit()
         if role_user_exists:
             return None
-        role_user = Role_User(**create_data)
+        role_user = RoleUser(**create_data)
         try:
             self.session.add(role_user)
             self.session.commit()
@@ -88,7 +88,7 @@ class RoleUserRequest:
             return error.orig.pgerror.split('\n')[1]
 
     def user_delete_role(self, delete_data):
-        user_role = self.session.query(Role_User).filter_by(**delete_data).first()
+        user_role = self.session.query(RoleUser).filter_by(**delete_data).first()
         self.session.commit()
         if not user_role:
             return None
