@@ -1,3 +1,5 @@
+import hashlib
+from datetime import timedelta
 from logging import config as logging_config
 from pathlib import Path
 
@@ -6,15 +8,20 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     # Настройки Redis
-    REDIS_HOST: str = 'redis'
+    REDIS_HOST: str = '192.168.88.131'
     REDIS_PORT: int = 6379
 
     # Настройки Postgres
-    POSTGRES_HOST: str
-    POSTGRES_PORT: str
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
+    POSTGRES_HOST: str = '192.168.88.131'
+    POSTGRES_PORT: str = '5432'
+    POSTGRES_USER: str = 'postgres'
+    POSTGRES_PASSWORD: str = 'postgres'
+    POSTGRES_DB: str = 'movies'
+
+    # Настройки Flask
+    SECRET_KEY = hashlib.md5('super_secret'.encode()).hexdigest()
+    ACCESS_EXPIRES = timedelta(minutes=60)
+    REFRESH_EXPIRES = timedelta(days=15)
 
     class Config:
         case_sensitive = True
