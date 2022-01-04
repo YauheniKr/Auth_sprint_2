@@ -1,3 +1,4 @@
+from flasgger import Swagger
 from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
@@ -5,10 +6,11 @@ from flask_restful import Api
 import datetime
 
 from src.api.role_api import RoleCreate, RoleGetUpdateDelete, RolesGet, RoleUserCreateDelete, CheckUserRole
-from src.api.user_api import UserCreate, UserLogin, UserLogout, TokenRefresh, UserUpdate
+from src.api.user_api import UserCreate, UserLogin, UserLogout, TokenRefresh, UserUpdate, GetUserAuthHistory
 from src.core.config import settings
 
 app = Flask(__name__)
+swagger = Swagger(app)
 app.config["JWT_SECRET_KEY"] = settings.SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = settings.ACCESS_EXPIRES
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = settings.REFRESH_EXPIRES
@@ -25,6 +27,7 @@ api.add_resource(UserLogin, '/api/v1/auth/user/login')
 api.add_resource(UserLogout, '/api/v1/auth/user/logout')
 api.add_resource(TokenRefresh, '/api/v1/auth/token/refresh')
 api.add_resource(UserUpdate, '/api/v1/auth/user/me')
+api.add_resource(GetUserAuthHistory, '/api/v1/auth/user/history')
 
 if __name__ == '__main__':
     app.run()
