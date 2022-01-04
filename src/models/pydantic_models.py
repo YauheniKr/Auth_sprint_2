@@ -1,3 +1,5 @@
+import datetime
+
 import orjson
 from pydantic import BaseModel as PydanticBaseModel, UUID4
 
@@ -17,8 +19,17 @@ class RoleModel(BaseModel):
     id: UUID4
     role_weight: int
     role_name: str
+    description: str = None
 
 
 class RoleUserModel(BaseModel):
     role_weight: int
     role_name: str
+
+
+class AuthHistoryModel(BaseModel):
+    id: UUID4
+    timestamp: datetime.datetime
+    user_agent: str
+    ipaddress: str
+    device: str = None
