@@ -1,10 +1,12 @@
 from http import HTTPStatus
 
 from flask import request
+from flask_pydantic import validate
 from flask_restful import Resource
 
 from src.db.global_init import create_session
-from src.services.user import UserRequest, TokenRequest
+from src.models.pydantic_models import AuthHistoryModel
+from src.services.user import UserRequest, TokenRequest, AuthHistoryRecord
 
 
 class UserCreate(Resource):
@@ -46,6 +48,19 @@ class UserUpdate(Resource):
         user = UserRequest(session)
         user = user.update(json_data)
         return user
+
+
+class GetUserAuthHistory(Resource):
+
+    @validate(response_many=True)
+    def get(self):
+        session = create_session()
+        auth_history = AuthHistoryRecord(session)
+        auth_history = auth_history.get_auth_record()
+        session.close()
+        history = [AuthHistoryModel(id=record.id, timestamp=record.timestamp, user_agent=record.user_agent,
+                                    ipaddress=record.ip_address, device=record.device) for record in auth_history]
+        return history
 
 
 class TokenRefresh(Resource):
