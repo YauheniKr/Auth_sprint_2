@@ -32,7 +32,7 @@ class UserRequest:
         ipaddress = request.remote_addr
         user_agent = request.user_agent.string
         device = request.user_agent.platform
-        history = AuthHistory(user_id = user.id, user_agent=user_agent, ip_address = ipaddress, device = device)
+        history = AuthHistory(user_id=user.id, user_agent=user_agent, ip_address=ipaddress, device=device)
         if not user:
             return make_response('User not found', 401)
         if check_password_hash(user.password, auth['password']):
@@ -74,7 +74,6 @@ class UserRequest:
         return make_response('User data updated', 200)
 
 
-
 class TokenRequest:
 
     @jwt_required(refresh=True)
@@ -98,3 +97,16 @@ class TokenRequest:
             refresh_token = decode_token(refresh_token)
             redis_service.add_token_to_database(refresh_token)
         return token
+
+
+class AuthHistoryRecord:
+
+    def __init__(self, session):
+        self.session = session
+
+    @jwt_required()
+    def get_auth_record(self):
+        user_id = get_jwt()['sub']
+        auth_record = self.session.query(AuthHistory).filter_by(user_id = user_id)
+        self.session.commit()
+        return auth_record
