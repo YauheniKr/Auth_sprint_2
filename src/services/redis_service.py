@@ -30,15 +30,6 @@ class RedisTokenStorage:
 
         return
 
-    def validate_access_token(self, access_token_jti: str) -> bool:
-        return bool(self.redis.exists(access_token_jti))
-
-    def invalidate_current_refresh_token(self, user_id: UUID) -> None:
-        self.redis.delete(str(user_id))
-
-    def set_refresh_token(self, token_jti: str, user_id: UUID) -> None:
-        self.redis.set(name=str(user_id), value=token_jti)
-
     def add_token_to_database(self, decoded_token):
 
         jti = decoded_token["jti"]
