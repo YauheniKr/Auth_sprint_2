@@ -29,12 +29,13 @@ class UserRequest:
             return make_response('username or password incorrect', 401)
         user = self.session.query(User).filter_by(username=auth['username']).first()
         self.session.commit()
+        if not user:
+            return make_response('User not found', 404)
         ipaddress = request.remote_addr
         user_agent = request.user_agent.string
         device = request.user_agent.platform
         history = AuthHistory(user_id=user.id, user_agent=user_agent, ip_address=ipaddress, device=device)
-        if not user:
-            return make_response('User not found', 401)
+
         if check_password_hash(user.password, auth['password']):
             access_token = create_access_token(identity=user.id)
             refresh_token = create_refresh_token(identity=user.id)
@@ -55,7 +56,7 @@ class UserRequest:
         token = get_jwt()
         redis_service = RedisTokenStorage()
         redis_service.add_token_to_database(token)
-        return jsonify(msg='Access token revoked')
+        return make_response('Token revoked', 200)
 
     @jwt_required()
     def update(self, update_data):
@@ -68,7 +69,7 @@ class UserRequest:
         user = self.session.query(User).filter(User.id == user_id)
         self.session.commit()
         if not user:
-            return make_response('User not found', 400)
+            return make_response('User not found', 404)
         user.update(update_data)
         self.session.commit()
         return make_response('User data updated', 200)
