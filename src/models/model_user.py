@@ -14,7 +14,7 @@ class User(ModelBase):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     username = Column(String(50), unique=True)
     password = Column(String(128))
-    email = Column(String(70), unique=True)
+    email = Column(String(70), unique=True, nullable=False)
 
     role = relationship("Role", secondary="role_user", backref=backref("users", lazy="dynamic"), )
 
