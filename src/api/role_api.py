@@ -1,6 +1,6 @@
 import uuid
 from http import HTTPStatus
-from typing import Optional
+from typing import Union
 
 from flask import request
 from flask_pydantic import validate
@@ -14,10 +14,12 @@ from src.services.role import RoleRequest, RolesRequest, RoleUserRequest
 class RoleGetUpdateDelete(Resource):
 
     @validate()
-    def get(self, role_id: uuid.UUID) -> Optional[RoleModel, tuple]:
+    def get(self, role_id: uuid.UUID) -> Union[RoleModel, tuple]:
         """
         Этот метод возвращает информацию о роли по ее role_id
         ---
+        tags:
+          - Role
         parameters:
           - in: path
             name: role_id
@@ -54,10 +56,12 @@ class RoleGetUpdateDelete(Resource):
                          description=role.description)
 
     @validate()
-    def patch(self, role_id: uuid.UUID) -> Optional[RoleModel, tuple]:
+    def patch(self, role_id: uuid.UUID) -> Union[RoleModel, tuple]:
         """
         Этот метод обновляет информацию о роли по ее role_id и возвращет обновленную информацию
         ---
+        tags:
+          - Role
         parameters:
           - in: path
             name: role_id
@@ -95,10 +99,12 @@ class RoleGetUpdateDelete(Resource):
                          description=role.description)
 
     @validate()
-    def delete(self, role_id: uuid.UUID) -> Optional[dict[str], tuple]:
+    def delete(self, role_id: uuid.UUID) -> Union[dict[str], tuple]:
         """
         Этот метод удаляет информацию о роли по ее role_id
         ---
+        tags:
+          - Role
         parameters:
           - in: path
             name: role_id
@@ -121,10 +127,12 @@ class RoleGetUpdateDelete(Resource):
 
 class RoleCreate(Resource):
 
-    def post(self) -> Optional[dict[str], tuple]:
+    def post(self) -> Union[dict[str], tuple]:
         """
         Этот метоl создает роль по предоставленной информации в теле запроса
         ---
+        tags:
+          - Role
         parameters:
           - name: body
             in: body
@@ -165,6 +173,8 @@ class RolesGet(Resource):
         """
         Этот метод возвращает список существующих ролей
         ---
+        tags:
+          - Role
         responses:
           200:
             description: Список ролей
@@ -194,7 +204,7 @@ class RolesGet(Resource):
 
 class RoleUserCreateDelete(Resource):
 
-    def post(self) -> Optional[dict[str], tuple]:
+    def post(self) -> Union[dict[str], tuple]:
         """
         Этот метод назначает роль пользователю. Предварительно и пользователь и роль должны быть созданы в БД
         ---
@@ -232,7 +242,7 @@ class RoleUserCreateDelete(Resource):
             return user_role, HTTPStatus.CONFLICT
         return {'msg': 'Роль добавлена'}
 
-    def delete(self) -> Optional[dict[str], tuple]:
+    def delete(self) -> Union[dict[str], tuple]:
         """
         Этот метод удаяляет роль у пользователя.
         ---
