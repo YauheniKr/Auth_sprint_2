@@ -1,0 +1,6 @@
+pytest==6.1.2
+requests
+pydantic
+redis
+sqlalchemy
+psycopg2-binary
