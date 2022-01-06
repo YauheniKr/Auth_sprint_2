@@ -22,7 +22,8 @@ class RoleRequest:
         self.session.commit()
         if role_status == 0:
             return None
-        return {'msg': 'role updated'}
+        role = self.session.query(Role).filter_by(id = self.role_id).first()
+        return role
 
     def delete_role(self):
         role = self.session.query(Role).filter(Role.id == self.role_id)
