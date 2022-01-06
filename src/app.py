@@ -3,8 +3,6 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 
-import datetime
-
 from src.api.role_api import RoleCreate, RoleGetUpdateDelete, RolesGet, RoleUserCreateDelete, CheckUserRole
 from src.api.user_api import UserCreate, UserLogin, UserLogout, TokenRefresh, UserUpdate, GetUserAuthHistory
 from src.core.config import settings
