@@ -18,7 +18,6 @@ class Role(ModelBase):
         return f'{self.role_name}'
 
 
-
 class RoleUser(ModelBase):
     __tablename__ = 'role_user'
 
