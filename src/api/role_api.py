@@ -67,6 +67,19 @@ class RoleGetUpdateDelete(Resource):
             name: role_id
             type: string
             required: true
+          - in: body
+            name: body
+            schema:
+              properties:
+                role_name:
+                  type: string
+                  description: имя роли
+                role_weight:
+                  type: integer
+                  description: вес роли
+                description:
+                  type: string
+                  description: описание роли
         responses:
           200:
             description: A single role item
@@ -92,6 +105,7 @@ class RoleGetUpdateDelete(Resource):
         session = create_session()
         role = RoleRequest(role_id, session)
         role = role.update_role(json_data)
+
         if not role:
             return f'Не найдена роль с id {role_id}', HTTPStatus.NOT_FOUND
         session.close()
