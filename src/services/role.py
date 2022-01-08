@@ -22,7 +22,7 @@ class RoleRequest:
         self.session.commit()
         if role_status == 0:
             return None
-        role = self.session.query(Role).filter_by(id = self.role_id).first()
+        role = self.session.query(Role).filter_by(id=self.role_id).first()
         return role
 
     def delete_role(self):
@@ -60,17 +60,27 @@ class RoleUserRequest:
         self.session = session
 
     def get_user_status(self, user_data):
-        user = self.session.query(User).filter_by(id = user_data['user_id']).first()
+        user_id = user_data.get('user_id')
+        if not user_id:
+            user_status = {
+                'role_weight': 0,
+                'role_name': 'anonymous'
+            }
+            return user_status
+        user = self.session.query(User).filter_by(id=user_id).first()
         self.session.commit()
-        if not user or not user.role:
+        if not user:
             user_role_weight = 0
             user_role_name = 'anonymous'
+        elif user and not user.role:
+            user_role_weight = 1
+            user_role_name = 'user'
         else:
             user_role_weight = user.role[0].role_weight
             user_role_name = user.role[0].role_name
         user_status = {
-            'role_name':user_role_name,
-            'role_weight':user_role_weight,
+            'role_name': user_role_name,
+            'role_weight': user_role_weight,
         }
         return user_status
 
@@ -96,6 +106,3 @@ class RoleUserRequest:
         self.session.delete(user_role)
         self.session.commit()
         return {"msg": "role deleted"}
-
-
-
