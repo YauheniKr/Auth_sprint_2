@@ -16,7 +16,10 @@ class User(ModelBase):
     password = Column(String(128))
     email = Column(String(70), unique=True, nullable=False)
 
-    role = relationship("Role", secondary="role_user", backref=backref("users", lazy="dynamic"), )
+    role = relationship("Role", secondary="role_user", backref=backref("users", lazy="dynamic", cascade='all, delete'))
+
+    def __repr__(self):
+        return f'{self.username}'
 
 
 class AuthHistory(ModelBase):
@@ -26,7 +29,7 @@ class AuthHistory(ModelBase):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False
     )
     user_id = Column("user_id", UUID(as_uuid=True), ForeignKey("user.id"))
-    timestamp = Column(DateTime,  server_default=func.now())
+    timestamp = Column(DateTime, server_default=func.now())
     user_agent = Column(Text, nullable=False)
     ip_address = Column(String(20))
     device = Column(Text)
