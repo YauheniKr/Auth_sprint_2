@@ -47,8 +47,33 @@ def roles(postgres_session):
     roles = [Role(**test_data) for test_data in test_datas]
     postgres_session.query(Role).delete()
     postgres_session.commit()
-    postgres_session.bulk_save_objects(roles)
+    postgres_session.bulk_save_objects(roles, return_defaults=True)
     postgres_session.commit()
-    yield role
+    yield roles
     postgres_session.query(Role).delete()
     postgres_session.commit()
+
+
+@pytest.fixture(scope='session')
+def users(postgres_session):
+    from tests.functional.models.model_user import User
+    user_test_data_1 = {
+        'username': 'user1',
+        'password': '123',
+        'email': 'fake@yamdb.ru'
+    }
+    user_test_data_2 = {
+        'username': 'user2',
+        'password': '123',
+        'email': 'fake@yamdb.com'
+    }
+    users = [user_test_data_1, user_test_data_2]
+    users = [User(**test_data) for test_data in users]
+    postgres_session.query(User).delete()
+    postgres_session.commit()
+    postgres_session.bulk_save_objects(users, return_defaults=True)
+    postgres_session.commit()
+    yield users
+    postgres_session.query(User).delete()
+    postgres_session.commit()
+
