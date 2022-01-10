@@ -1,0 +1,10 @@
+pytest==6.1.2
+requests
+pydantic
+redis
+sqlalchemy
+psycopg2-binary
+flask_jwt_extended
+redis==4.1.0
+werkzeug
+pytest-flask
