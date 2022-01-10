@@ -1,11 +1,11 @@
-from sqlalchemy.sql import func
 import uuid
 
 from sqlalchemy import Column, String, DateTime, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import backref, relationship
+from sqlalchemy.sql import func
 
-from src.models.model_base import ModelBase
+from tests.functional.models.model_base import ModelBase
 
 
 class User(ModelBase):
@@ -16,10 +16,7 @@ class User(ModelBase):
     password = Column(String(128))
     email = Column(String(70), unique=True, nullable=False)
 
-    role = relationship("Role", secondary="role_user", backref=backref("users", lazy="dynamic", cascade='all, delete'))
-
-    def __repr__(self):
-        return f'{self.username}'
+    role = relationship("Role", secondary="role_user", backref=backref("users", lazy="dynamic"), cascade='all, delete')
 
 
 class AuthHistory(ModelBase):

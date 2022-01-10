@@ -21,6 +21,17 @@ services:
     env_file:
       - src/core/.env
 
+  test:
+    container_name: test_api
+    build:
+      context: tests
+    depends_on:
+      - postgres
+      - redis
+    entrypoint: >
+      sh -c " python3 /tests/functional/utils/wait_for_redis.py
+      && pytest /tests/functional/src -v"
+
   redis:
     container_name: redis_container
     image: redis:6.2.6

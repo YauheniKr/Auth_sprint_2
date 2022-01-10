@@ -1,18 +1,20 @@
 import hashlib
 from datetime import timedelta
-from logging import config as logging_config
-from pathlib import Path
 
 from pydantic import BaseSettings
 
 
-class Settings(BaseSettings):
+class TestSettings(BaseSettings):
     # Настройки Redis
-    REDIS_HOST: str = '192.168.88.131'
+    REDIS_HOST: str = 'redis'
     REDIS_PORT: int = 6379
 
+    # Настройки сервиса
+    SERVICE_HOST: str = 'auth_api'
+    SERVICE_PORT: int = 8000
+
     # Настройки Postgres
-    POSTGRES_HOST: str = '192.168.88.131'
+    POSTGRES_HOST: str = 'postgres'
     POSTGRES_PORT: str = '5432'
     POSTGRES_USER: str = 'postgres'
     POSTGRES_PASSWORD: str = 'postgres'
@@ -27,4 +29,4 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 
-settings = Settings(_env_file=".env", _env_file_encoding="utf-8")
+test_settings = TestSettings()

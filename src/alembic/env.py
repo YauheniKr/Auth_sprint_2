@@ -5,9 +5,9 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.models.model_user import *
-from src.models.model_role import *
-from src.models.model_base import ModelBase
+import sys
+
+sys.path = ['', '..'] + sys.path[1:]
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
