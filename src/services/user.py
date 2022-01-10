@@ -35,7 +35,6 @@ class UserRequest:
         user_agent = request.user_agent.string
         device = request.user_agent.platform
         history = AuthHistory(user_id=user.id, user_agent=user_agent, ip_address=ipaddress, device=device)
-
         if check_password_hash(user.password, auth['password']):
             access_token = create_access_token(identity=user.id)
             refresh_token = create_refresh_token(identity=user.id)
@@ -63,13 +62,13 @@ class UserRequest:
         user_id = get_jwt()['sub']
         if not update_data:
             return make_response('User data incorrect', 400)
-        password = update_data.get('password')
-        if password:
-            update_data['password'] = generate_password_hash(password, method='sha256')
         user = self.session.query(User).filter(User.id == user_id)
         self.session.commit()
         if not user:
             return make_response('User not found', 404)
+        password = update_data.get('password')
+        if password:
+            update_data['password'] = generate_password_hash(password, method='sha256')
         user.update(update_data)
         self.session.commit()
         return make_response('User data updated', 200)
