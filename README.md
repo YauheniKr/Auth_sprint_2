@@ -40,4 +40,4 @@ docker-compose up -d --build
 docker-compose -f docker-compose.test.yaml up -d --build. Для тестирования используются теже контейнеры с базами дланных что и для работы приложения
 
 Приглашение [BlueDeep](https://github.com/BigDeepBlue) отправлено 
-ССылка на [репозиторий](https://github.com/YauheniKr/Async_API_sprint_2/) с работой
+ССылка на [репозиторий](https://github.com/YauheniKr/Auth_sprint_1) с работой
