@@ -28,7 +28,7 @@ class AuthHistory(ModelBase):
     id = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False
     )
-    user_id = Column("user_id", UUID(as_uuid=True), ForeignKey("user.id"))
+    user_id = Column("user_id", UUID(as_uuid=True), ForeignKey("user.id", ondelete="cascade"))
     timestamp = Column(DateTime, server_default=func.now())
     user_agent = Column(Text, nullable=False)
     ip_address = Column(String(20))
