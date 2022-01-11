@@ -18,6 +18,10 @@ services:
       - 8000:8000
     env_file:
       - src/core/.env
+    entrypoint: >
+      sh -c " python3 /src/services/wait_for_postgres.py
+      && alembic upgrade head
+      && gunicorn wsgi_app:app -b 0.0.0.0:8000 -w 2 --log-level debug --timeout 0"
 
   redis:
     container_name: redis_container
