@@ -30,6 +30,8 @@ services:
       - redis
     entrypoint: >
       sh -c " python3 /tests/functional/utils/wait_for_redis.py
+      && python3 /src/services/wait_for_postgres.py
+      && alembic upgrade head
       && pytest /tests/functional/src -v"
 
   redis:
