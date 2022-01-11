@@ -8,11 +8,11 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     # Настройки Redis
-    REDIS_HOST: str = '192.168.88.131'
+    REDIS_HOST: str = 'redis'
     REDIS_PORT: int = 6379
 
     # Настройки Postgres
-    POSTGRES_HOST: str = '192.168.88.131'
+    POSTGRES_HOST: str = 'postgres'
     POSTGRES_PORT: str = '5432'
     POSTGRES_USER: str = 'postgres'
     POSTGRES_PASSWORD: str = 'postgres'
