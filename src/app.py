@@ -7,6 +7,7 @@ from src.api.role_api import (CheckUserRole, RoleCreate, RoleGetUpdateDelete,
                               RolesGet, RoleUserCreateDelete)
 from src.api.user_api import (GetUserAuthHistory, TokenRefresh, UserCreate,
                               UserLogin, UserLogout, UserUpdate)
+from src.commands import usersbp
 from src.core.config import settings
 
 app = Flask(__name__)
@@ -28,6 +29,8 @@ api.add_resource(UserLogout, '/api/v1/auth/user/logout')
 api.add_resource(TokenRefresh, '/api/v1/auth/token/refresh')
 api.add_resource(UserUpdate, '/api/v1/auth/user/me')
 api.add_resource(GetUserAuthHistory, '/api/v1/auth/user/history')
+
+app.register_blueprint(usersbp)
 
 if __name__ == '__main__':
     app.run()
