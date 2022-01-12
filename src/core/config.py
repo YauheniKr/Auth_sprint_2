@@ -1,7 +1,5 @@
 import hashlib
 from datetime import timedelta
-from logging import config as logging_config
-from pathlib import Path
 
 from pydantic import BaseSettings
 

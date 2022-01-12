@@ -1,12 +1,10 @@
 import os
+import sys
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-
-import sys
 
 sys.path = ['', '..'] + sys.path[1:]
 
@@ -27,13 +25,14 @@ config.set_section_option(section, "POSTGRES_DB", os.environ.get("POSTGRES_DB"))
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
 
+from src.models.model_base import ModelBase
+from src.models.model_role import *
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from src.models.model_user import *
-from src.models.model_role import *
-from src.models.model_base import ModelBase
+
 target_metadata = ModelBase.metadata
 
 # other values from the config, defined by the needs of env.py,

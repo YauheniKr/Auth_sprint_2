@@ -1,11 +1,12 @@
-from flask import request, make_response, jsonify
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt, get_jwt_identity, \
-    decode_token
+from flask import make_response, request
+from flask_jwt_extended import (create_access_token, create_refresh_token,
+                                decode_token, get_jwt, get_jwt_identity,
+                                jwt_required)
 from sqlalchemy.exc import IntegrityError
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from src.models.model_user import User, AuthHistory
-from src.services.redis_service import RedisTokenStorage, InvalidTokenError
+from src.models.model_user import AuthHistory, User
+from src.services.redis_service import InvalidTokenError, RedisTokenStorage
 
 
 class UserRequest:

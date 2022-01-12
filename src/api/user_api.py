@@ -6,7 +6,7 @@ from flask_restful import Resource
 
 from src.db.global_init import create_session
 from src.models.pydantic_models import AuthHistoryModel
-from src.services.user import UserRequest, TokenRequest, AuthHistoryRecord
+from src.services.user import AuthHistoryRecord, TokenRequest, UserRequest
 
 
 class UserCreate(Resource):

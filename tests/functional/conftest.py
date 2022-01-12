@@ -2,7 +2,8 @@ from datetime import datetime
 
 import pytest
 from flask import Flask
-from flask_jwt_extended import decode_token, JWTManager, create_access_token, create_refresh_token
+from flask_jwt_extended import (JWTManager, create_access_token,
+                                create_refresh_token, decode_token)
 from werkzeug.security import generate_password_hash
 
 from tests.functional.settings import test_settings as settings

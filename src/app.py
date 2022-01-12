@@ -3,8 +3,10 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 
-from src.api.role_api import RoleCreate, RoleGetUpdateDelete, RolesGet, RoleUserCreateDelete, CheckUserRole
-from src.api.user_api import UserCreate, UserLogin, UserLogout, TokenRefresh, UserUpdate, GetUserAuthHistory
+from src.api.role_api import (CheckUserRole, RoleCreate, RoleGetUpdateDelete,
+                              RolesGet, RoleUserCreateDelete)
+from src.api.user_api import (GetUserAuthHistory, TokenRefresh, UserCreate,
+                              UserLogin, UserLogout, UserUpdate)
 from src.core.config import settings
 
 app = Flask(__name__)

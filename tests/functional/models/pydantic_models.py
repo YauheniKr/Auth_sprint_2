@@ -1,7 +1,8 @@
 import datetime
 
 import orjson
-from pydantic import BaseModel as PydanticBaseModel, UUID4
+from pydantic import UUID4
+from pydantic import BaseModel as PydanticBaseModel
 
 
 def orjson_dumps(v, *, default):
