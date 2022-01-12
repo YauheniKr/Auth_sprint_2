@@ -1,4 +1,5 @@
 import json
+from http import HTTPStatus
 
 import requests
 from flask_jwt_extended import decode_token
@@ -15,7 +16,7 @@ class TestsUserApi:
         }
         json_data = json.dumps(data)
         user_answer = requests.post(url, data=json_data)
-        assert user_answer.status_code == 200
+        assert user_answer.status_code == HTTPStatus.OK
 
     def test_user_update(self, users, tokens):
         url = f'http://auth_api:8000/api/v1/auth/user/me'
@@ -27,7 +28,7 @@ class TestsUserApi:
         }
         json_data = json.dumps(data)
         user_answer = requests.patch(url, data=json_data, headers=headers)
-        assert user_answer.status_code == 200
+        assert user_answer.status_code == HTTPStatus.OK
 
     def test_user_login(self, users):
         url = f'http://auth_api:8000/api/v1/auth/user/login'
@@ -40,7 +41,7 @@ class TestsUserApi:
         }
         json_data = json.dumps(data)
         user_answer = requests.post(url, data=json_data, headers=headers)
-        assert user_answer.status_code == 200
+        assert user_answer.status_code == HTTPStatus.OK
         assert 'access_token' in user_answer.json()
         assert 'refresh_token' in user_answer.json()
 
@@ -53,7 +54,7 @@ class TestsUserApi:
         }
         user_answer = requests.get(url, headers=headers)
         jti = redis_session.get(str(users[0].id))
-        assert user_answer.status_code == 200
+        assert user_answer.status_code == HTTPStatus.OK
         assert decode_token(access)['jti'] == jti
 
     def test_user_refresh_token(self, users, tokens, redis_session):
@@ -64,7 +65,7 @@ class TestsUserApi:
             'Content-Type': 'application/json'
         }
         user_answer = requests.post(url, headers=headers)
-        assert user_answer.status_code == 200
+        assert user_answer.status_code == HTTPStatus.OK
         assert 'access_token' in user_answer.json()
         assert 'refresh_token' in user_answer.json()
 
@@ -86,5 +87,5 @@ class TestsUserApi:
             'Content-Type': 'application/json'
         }
         history = requests.get(url, headers=headers)
-        assert history.status_code == 200
+        assert history.status_code == HTTPStatus.OK
         assert len(history.json()) == 1
