@@ -1,7 +1,9 @@
+from flask import make_response
 from sqlalchemy.exc import IntegrityError
 
 from src.models.model_role import Role, RoleUser
 from src.models.model_user import User
+from src.services.utils import admin_required
 
 
 class RoleRequest:
@@ -41,6 +43,8 @@ class RolesRequest:
 
     def create_role(self, create_data):
 
+        if create_data['role_name'] == 'superuser':
+            return {"msg": "superuser"}
         role = Role(**create_data)
         try:
             self.session.add(role)
@@ -84,6 +88,7 @@ class RoleUserRequest:
         }
         return user_status
 
+    @admin_required()
     def user_add_role(self, create_data):
         role_user_exists = self.session.query(RoleUser).filter_by(**create_data).first()
         self.session.commit()
@@ -93,11 +98,11 @@ class RoleUserRequest:
         try:
             self.session.add(role_user)
             self.session.commit()
-            role_user = 'created successfully'
-            return role_user
+            return make_response('created successfully', 200)
         except IntegrityError as error:
             return error.orig.pgerror.split('\n')[1]
 
+    @admin_required()
     def user_delete_role(self, delete_data):
         user_role = self.session.query(RoleUser).filter_by(**delete_data).first()
         self.session.commit()
