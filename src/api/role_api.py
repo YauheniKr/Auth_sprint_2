@@ -176,6 +176,8 @@ class RoleCreate(Resource):
         role = role.create_role(json_data)
         if not role:
             return f'Роль с данными параметрами уже существует', HTTPStatus.CONFLICT
+        elif role['msg'] == 'superuser':
+            return f'Роль superuser можно создать только консольной командой', HTTPStatus.CONFLICT
         session.close()
         return {'msg': 'Роль создана'}
 
@@ -225,6 +227,14 @@ class RoleUserCreateDelete(Resource):
         tags:
           - RoleUser
         parameters:
+          - name: Authorization
+            in: header
+            schema:
+              properties:
+                access_token:
+                  type: string
+                  required: true
+                  description: токен доступа. Добавляем Bearer в начало токена при тестировании
           - name: body
             in: body
             required: true
@@ -252,9 +262,9 @@ class RoleUserCreateDelete(Resource):
         user_role = user_role.user_add_role(json_data)
         if not user_role:
             return f'User с данной ролью уже существует', HTTPStatus.CONFLICT
-        elif 'DETAIL' in user_role:
-            return user_role, HTTPStatus.CONFLICT
-        return {'msg': 'Роль добавлена'}
+        elif user_role.status_code == 403:
+            return user_role
+        return user_role
 
     def delete(self) -> Union[dict[str], tuple]:
         """
@@ -270,7 +280,7 @@ class RoleUserCreateDelete(Resource):
               id: RoleUser
               properties:
                 user_id:
-                  type: integer
+                  type: string
                   required: true
                   description: идентификатор пользователя
 
