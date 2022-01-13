@@ -25,19 +25,25 @@ class UserRequest:
         return {"msg": "role added"}
 
     def login(self):
+        additional_claims = None
         auth = request.json
         if not auth or not auth['username'] or not auth['password']:
-            return make_response('username or password incorrect', 401)
+            return make_response('username or password absent', 401)
         user = self.session.query(User).filter_by(username=auth['username']).first()
         self.session.commit()
         if not user:
             return make_response('User not found', 404)
+        if user.role and user.role[0].role_name == 'superuser':
+            additional_claims = {"is_administrator": True}
         ipaddress = request.remote_addr
         user_agent = request.user_agent.string
         device = request.user_agent.platform
         history = AuthHistory(user_id=user.id, user_agent=user_agent, ip_address=ipaddress, device=device)
         if check_password_hash(user.password, auth['password']):
-            access_token = create_access_token(identity=user.id)
+            if additional_claims:
+                access_token = create_access_token(identity=user.id, additional_claims={"is_administrator": True})
+            else:
+                access_token = create_access_token(identity=user.id)
             refresh_token = create_refresh_token(identity=user.id)
             token = {
                 'access_token': access_token,
