@@ -41,10 +41,11 @@ class UserRequest:
         history = AuthHistory(user_id=user.id, user_agent=user_agent, ip_address=ipaddress, device=device)
         if check_password_hash(user.password, auth['password']):
             if additional_claims:
-                access_token = create_access_token(identity=user.id, additional_claims={"is_administrator": True})
+                access_token = create_access_token(identity=user.id, additional_claims=additional_claims)
+                refresh_token = create_refresh_token(identity=user.id, additional_claims=additional_claims)
             else:
                 access_token = create_access_token(identity=user.id)
-            refresh_token = create_refresh_token(identity=user.id)
+                refresh_token = create_refresh_token(identity=user.id)
             token = {
                 'access_token': access_token,
                 'refresh_token': refresh_token
@@ -85,6 +86,7 @@ class TokenRequest:
 
     @jwt_required(refresh=True)
     def refresh_token(self):
+        additional_claims = None
         token = get_jwt()
         identity = get_jwt_identity()
         redis_service = RedisTokenStorage()
@@ -94,8 +96,10 @@ class TokenRequest:
             return make_response('Token is absent or incorrect', 401,
                                  {'Authentication': 'Token is absent or incorrect'})
         else:
-            access_token = create_access_token(identity)
-            refresh_token = create_refresh_token(identity)
+            if token.get('is_administrator'):
+                additional_claims = {"is_administrator": True}
+            access_token = create_access_token(identity, additional_claims=additional_claims)
+            refresh_token = create_refresh_token(identity, additional_claims=additional_claims)
             token = {
                 'access_token': access_token,
                 'refresh_token': refresh_token
