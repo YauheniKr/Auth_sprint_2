@@ -5,8 +5,9 @@ from flask_pydantic import validate
 from flask_restful import Resource
 
 from src.db.global_init import create_session
-from src.models.pydantic_models import AuthHistoryModel
+from src.models.pydantic_models import AuthHistoryModel, AuthHistoryBase
 from src.services.user import AuthHistoryRecord, TokenRequest, UserRequest
+from src.services.utils import get_paginated_list
 
 
 class UserCreate(Resource):
@@ -172,7 +173,7 @@ class UserUpdate(Resource):
 
 class GetUserAuthHistory(Resource):
 
-    @validate(response_many=True)
+    @validate(response_by_alias=True)
     def get(self):
         """
         Обновление информации о пользователе
@@ -180,6 +181,22 @@ class GetUserAuthHistory(Resource):
         tags:
           - AuthHistory
         parameters:
+          - name: page
+            in: query
+            schema:
+              properties:
+                page:
+                  type: integer
+                  description: Номер страницы
+                  default: 1
+          - name: limit
+            in: query
+            schema:
+              properties:
+                page:
+                  type: integer
+                  description: Количество записей на странице
+                  default: 5
           - name: Authorization
             in: header
             schema:
@@ -214,9 +231,18 @@ class GetUserAuthHistory(Resource):
         auth_history = AuthHistoryRecord(session)
         auth_history = auth_history.get_auth_record()
         session.close()
-        history = [AuthHistoryModel(id=record.id, timestamp=record.timestamp, user_agent=record.user_agent,
-                                    ipaddress=record.ip_address, device=record.device) for record in auth_history]
-        return history
+        history = [AuthHistoryBase(id=record.id, timestamp=record.timestamp, user_agent=record.user_agent,
+                                   ipaddress=record.ip_address, device=record.device)
+                   for record in auth_history]
+
+        auth_record_out = get_paginated_list(
+            history,
+            '/api/v1/auth/user/history',
+            page=request.args.get('page', 1),
+            limit=request.args.get('limit', 5)
+        )
+        out = AuthHistoryModel(**auth_record_out)
+        return out
 
 
 class TokenRefresh(Resource):
