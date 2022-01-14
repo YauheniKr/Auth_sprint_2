@@ -14,8 +14,6 @@ class Role(ModelBase):
     role_weight = Column(Integer, unique=True, nullable=False)
     description = Column(String(255))
 
-
-
     def __repr__(self):
         return f'{self.role_name}'
 
