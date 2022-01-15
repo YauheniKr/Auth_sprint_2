@@ -2,13 +2,18 @@ import uuid
 from http import HTTPStatus
 from typing import Union
 
-from flask import request
+from flask import request, Blueprint
 from flask_pydantic import validate
-from flask_restful import Resource
+from flask_restful import Resource, Api
 
 from src.db.global_init import create_session
 from src.models.pydantic_models import RoleModel, RoleUserModel
 from src.services.role import RoleRequest, RolesRequest, RoleUserRequest
+
+roles_blueprint = Blueprint('roles', __name__)
+roles_status_blueprint = Blueprint('roles_status', __name__)
+api = Api(roles_blueprint, prefix='/api/v1/auth')
+api_status = Api(roles_status_blueprint, prefix='/api/v1/auth')
 
 
 class RoleGetUpdateDelete(Resource):
@@ -336,3 +341,10 @@ class CheckUserRole(Resource):
         user_role_status = RoleUserRequest(session)
         user_role_status = user_role_status.get_user_status(json_data)
         return RoleUserModel(role_name=user_role_status['role_name'], role_weight=user_role_status['role_weight'])
+
+
+api.add_resource(RoleGetUpdateDelete, '/role/<string:role_id>')
+api.add_resource(RoleCreate, '/role/')
+api.add_resource(RolesGet, '/roles/')
+api.add_resource(RoleUserCreateDelete, '/role/user/')
+api_status.add_resource(CheckUserRole, '/role/user/status')
