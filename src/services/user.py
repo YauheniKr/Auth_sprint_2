@@ -2,6 +2,7 @@ from flask import make_response, request
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 decode_token, get_jwt, get_jwt_identity,
                                 jwt_required)
+from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -118,6 +119,6 @@ class AuthHistoryRecord:
     @jwt_required()
     def get_auth_record(self):
         user_id = get_jwt()['sub']
-        auth_record = self.session.query(AuthHistory).filter_by(user_id = user_id)
+        auth_record = self.session.query(AuthHistory).filter_by(user_id=user_id).order_by(desc(AuthHistory.timestamp))
         self.session.commit()
         return auth_record
