@@ -1,13 +1,18 @@
 from http import HTTPStatus
 
-from flask import request
+from flask import request, Blueprint
 from flask_pydantic import validate
-from flask_restful import Resource
+from flask_restful import Resource, Api
 
 from src.db.global_init import create_session
 from src.models.pydantic_models import AuthHistoryModel, AuthHistoryBase
 from src.services.user import AuthHistoryRecord, TokenRequest, UserRequest
 from src.services.utils import get_paginated_list
+
+user_blueprint = Blueprint('user', __name__)
+token_blueprint = Blueprint('token', __name__)
+user_api = Api(user_blueprint, prefix='/api/v1/auth')
+token_api = Api(token_blueprint, prefix='/api/v1/auth')
 
 
 class UserCreate(Resource):
@@ -271,3 +276,10 @@ class TokenRefresh(Resource):
         token = TokenRequest()
         token = token.refresh_token()
         return token
+
+user_api.add_resource(UserCreate, '/user/signup')
+user_api.add_resource(UserLogin, '/user/login')
+user_api.add_resource(UserLogout, '/user/logout')
+user_api.add_resource(UserUpdate, '/user/me')
+user_api.add_resource(GetUserAuthHistory, '/user/history')
+token_api.add_resource(TokenRefresh, '/token/refresh')
