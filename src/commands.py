@@ -23,7 +23,7 @@ def create_superuser(username, password, email):
         session.add(user)
         session.commit()
         role_id = create_superuser_role()
-        roleuser = RoleUser(user_id=user.id, role_id = role_id)
+        roleuser = RoleUser(user_id=user.id, role_id=role_id)
         session.add(roleuser)
         session.commit()
         session.close()
