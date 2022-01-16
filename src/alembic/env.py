@@ -2,9 +2,12 @@ import os
 import sys
 from logging.config import fileConfig
 
+import dotenv
+from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
+
 
 sys.path = ['', '..'] + sys.path[1:]
 
@@ -15,6 +18,7 @@ config = context.config
 # here we allow ourselves to pass interpolation vars to alembic.ini
 # from the host env
 section = config.config_ini_section
+load_dotenv()
 config.set_section_option(section, "POSTGRES_HOST", os.environ.get("POSTGRES_HOST"))
 config.set_section_option(section, "POSTGRES_PORT", os.environ.get("POSTGRES_PORT"))
 config.set_section_option(section, "POSTGRES_USER", os.environ.get("POSTGRES_USER"))
