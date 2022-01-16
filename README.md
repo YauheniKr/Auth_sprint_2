@@ -32,12 +32,16 @@ SQLAlchemy
 Работа с проектом
 Запуск
 docker-compose up -d --build
-Документация доступна по адресу http://0.0.0.0:8000/apidocs/
+Документация доступна по адресу http://0.0.0.0/apidocs/
 
 Тестирование
 
 тесты выполнены в виде отдельного микросервиса для запуска необходимо выполнить команду 
-docker-compose -f docker-compose.test.yaml up -d --build. Для тестирования используются теже контейнеры с базами дланных что и для работы приложения
+docker-compose -f docker-compose.test.yaml up -d --build. Для тестирования используются теже контейнеры с базами данных что и для работы приложения
+
+Создание Суперпользователя
+
+docker exec -it auth_api flask superuser create <username> <password> <email>
 
 Приглашение [BlueDeep](https://github.com/BigDeepBlue) отправлено 
-ССылка на [репозиторий](https://github.com/YauheniKr/Async_API_sprint_2/) с работой
+ССылка на [репозиторий](https://github.com/YauheniKr/Auth_sprint_1) с работой
