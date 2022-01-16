@@ -3,8 +3,6 @@ import sqlalchemy.orm
 
 from src.core.config import settings
 from src.models.model_base import ModelBase
-from src.models.model_role import Role
-from src.models.model_user import User
 
 __factory = None
 username = settings.POSTGRES_USER
