@@ -110,4 +110,4 @@ class RoleUserRequest:
             return None
         self.session.delete(user_role)
         self.session.commit()
-        return {"msg": "role deleted"}
+        return make_response('role deleted', 200)
