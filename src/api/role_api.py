@@ -2,13 +2,18 @@ import uuid
 from http import HTTPStatus
 from typing import Union
 
-from flask import request
+from flask import Blueprint, request
 from flask_pydantic import validate
-from flask_restful import Resource
+from flask_restful import Api, Resource
 
 from src.db.global_init import create_session
 from src.models.pydantic_models import RoleModel, RoleUserModel
 from src.services.role import RoleRequest, RolesRequest, RoleUserRequest
+
+roles_blueprint = Blueprint('roles', __name__)
+roles_status_blueprint = Blueprint('roles_status', __name__)
+api = Api(roles_blueprint, prefix='/api/v1/auth')
+api_status = Api(roles_status_blueprint, prefix='/api/v1/auth')
 
 
 class RoleGetUpdateDelete(Resource):
@@ -175,7 +180,9 @@ class RoleCreate(Resource):
         role = RolesRequest(session)
         role = role.create_role(json_data)
         if not role:
-            return f'Роль с данными параметрами уже существует', HTTPStatus.CONFLICT
+            return 'Роль с данными параметрами уже существует', HTTPStatus.CONFLICT
+        elif role['msg'] == 'superuser':
+            return 'Роль superuser можно создать только консольной командой', HTTPStatus.CONFLICT
         session.close()
         return {'msg': 'Роль создана'}
 
@@ -225,6 +232,14 @@ class RoleUserCreateDelete(Resource):
         tags:
           - RoleUser
         parameters:
+          - name: Authorization
+            in: header
+            schema:
+              properties:
+                access_token:
+                  type: string
+                  required: true
+                  description: токен доступа. Добавляем Bearer в начало токена при тестировании
           - name: body
             in: body
             required: true
@@ -243,6 +258,8 @@ class RoleUserCreateDelete(Resource):
         responses:
           200:
             description: Роль добавлена
+          403:
+            description: Пользователь не корректен
           409:
             description: Пользователь с данной ролью уже существует
         """
@@ -251,10 +268,10 @@ class RoleUserCreateDelete(Resource):
         user_role = RoleUserRequest(session)
         user_role = user_role.user_add_role(json_data)
         if not user_role:
-            return f'User с данной ролью уже существует', HTTPStatus.CONFLICT
-        elif 'DETAIL' in user_role:
-            return user_role, HTTPStatus.CONFLICT
-        return {'msg': 'Роль добавлена'}
+            return 'User с данной ролью уже существует', HTTPStatus.CONFLICT
+        elif user_role.status_code == 403:
+            return user_role
+        return user_role
 
     def delete(self) -> Union[dict[str], tuple]:
         """
@@ -270,13 +287,15 @@ class RoleUserCreateDelete(Resource):
               id: RoleUser
               properties:
                 user_id:
-                  type: integer
+                  type: string
                   required: true
                   description: идентификатор пользователя
 
         responses:
           200:
             description: Роль удалена
+          403:
+            description: Пользователь не корректен
           409:
             description: Пользователь не существует
         """
@@ -286,8 +305,8 @@ class RoleUserCreateDelete(Resource):
         user_role = user_role.user_delete_role(json_data)
         session.close()
         if not user_role:
-            return f'User не существует', HTTPStatus.NOT_FOUND
-        return {"msg": "role deleted"}
+            return 'User не существует', HTTPStatus.NOT_FOUND
+        return user_role
 
 
 class CheckUserRole(Resource):
@@ -326,3 +345,10 @@ class CheckUserRole(Resource):
         user_role_status = RoleUserRequest(session)
         user_role_status = user_role_status.get_user_status(json_data)
         return RoleUserModel(role_name=user_role_status['role_name'], role_weight=user_role_status['role_weight'])
+
+
+api.add_resource(RoleGetUpdateDelete, '/role/<string:role_id>/')
+api.add_resource(RoleCreate, '/role/')
+api.add_resource(RolesGet, '/roles/')
+api.add_resource(RoleUserCreateDelete, '/role/user/')
+api_status.add_resource(CheckUserRole, '/role/user/status/')

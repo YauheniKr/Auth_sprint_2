@@ -1,12 +1,19 @@
 from http import HTTPStatus
 
-from flask import request
+from flask import Blueprint, make_response, request
 from flask_pydantic import validate
-from flask_restful import Resource
+from flask_restful import Api, Resource
+from jwt import ExpiredSignatureError
 
 from src.db.global_init import create_session
-from src.models.pydantic_models import AuthHistoryModel
-from src.services.user import UserRequest, TokenRequest, AuthHistoryRecord
+from src.models.pydantic_models import AuthHistoryBase, AuthHistoryModel
+from src.services.user import AuthHistoryRecord, TokenRequest, UserRequest
+from src.services.utils import get_paginated_list
+
+user_blueprint = Blueprint('user', __name__)
+token_blueprint = Blueprint('token', __name__)
+user_api = Api(user_blueprint, prefix='/api/v1/auth')
+token_api = Api(token_blueprint, prefix='/api/v1/auth')
 
 
 class UserCreate(Resource):
@@ -47,7 +54,7 @@ class UserCreate(Resource):
         user = UserRequest(session)
         user = user.signup(json_data)
         if not user:
-            return f'Пользователь с данными параметрами уже существует', HTTPStatus.CONFLICT
+            return 'Пользователь с данными параметрами уже существует', HTTPStatus.CONFLICT
         session.close()
         return {'msg': 'Пользователь создан'}
 
@@ -172,7 +179,7 @@ class UserUpdate(Resource):
 
 class GetUserAuthHistory(Resource):
 
-    @validate(response_many=True)
+    @validate(response_by_alias=True)
     def get(self):
         """
         Обновление информации о пользователе
@@ -180,6 +187,22 @@ class GetUserAuthHistory(Resource):
         tags:
           - AuthHistory
         parameters:
+          - name: page
+            in: query
+            schema:
+              properties:
+                page:
+                  type: integer
+                  description: Номер страницы
+                  default: 1
+          - name: limit
+            in: query
+            schema:
+              properties:
+                page:
+                  type: integer
+                  description: Количество записей на странице
+                  default: 5
           - name: Authorization
             in: header
             schema:
@@ -212,11 +235,23 @@ class GetUserAuthHistory(Resource):
         """
         session = create_session()
         auth_history = AuthHistoryRecord(session)
-        auth_history = auth_history.get_auth_record()
-        session.close()
-        history = [AuthHistoryModel(id=record.id, timestamp=record.timestamp, user_agent=record.user_agent,
-                                    ipaddress=record.ip_address, device=record.device) for record in auth_history]
-        return history
+        try:
+            auth_history = auth_history.get_auth_record()
+            session.close()
+        except ExpiredSignatureError:
+            return make_response({'msg': 'token expired'}, 401)
+        history = [AuthHistoryBase(id=record.id, timestamp=record.timestamp, user_agent=record.user_agent,
+                                   ipaddress=record.ip_address, device=record.device)
+                   for record in auth_history]
+
+        auth_record_out = get_paginated_list(
+            history,
+            '/api/v1/auth/user/history',
+            page=request.args.get('page', 1),
+            limit=request.args.get('limit', 5)
+        )
+        out = AuthHistoryModel(**auth_record_out)
+        return out
 
 
 class TokenRefresh(Resource):
@@ -245,3 +280,11 @@ class TokenRefresh(Resource):
         token = TokenRequest()
         token = token.refresh_token()
         return token
+
+
+user_api.add_resource(UserCreate, '/user/signup/')
+user_api.add_resource(UserLogin, '/user/login/')
+user_api.add_resource(UserLogout, '/user/logout/')
+user_api.add_resource(UserUpdate, '/user/me/')
+user_api.add_resource(GetUserAuthHistory, '/user/history/')
+token_api.add_resource(TokenRefresh, '/token/refresh/')

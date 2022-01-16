@@ -1,11 +1,11 @@
+import os
+import sys
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from dotenv import load_dotenv
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-
-import sys
 
 sys.path = ['', '..'] + sys.path[1:]
 
@@ -13,17 +13,28 @@ sys.path = ['', '..'] + sys.path[1:]
 # access to the values within the .ini file in use.
 config = context.config
 
+# here we allow ourselves to pass interpolation vars to alembic.ini
+# from the host env
+section = config.config_ini_section
+load_dotenv()
+config.set_section_option(section, "POSTGRES_HOST", os.environ.get("POSTGRES_HOST"))
+config.set_section_option(section, "POSTGRES_PORT", os.environ.get("POSTGRES_PORT"))
+config.set_section_option(section, "POSTGRES_USER", os.environ.get("POSTGRES_USER"))
+config.set_section_option(section, "POSTGRES_PASSWORD", os.environ.get("POSTGRES_PASSWORD"))
+config.set_section_option(section, "POSTGRES_DB", os.environ.get("POSTGRES_DB"))
+
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
 
+from src.models.model_base import ModelBase
+from src.models.model_role import *
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from src.models.model_user import *
-from src.models.model_role import *
-from src.models.model_base import ModelBase
+
 target_metadata = ModelBase.metadata
 
 # other values from the config, defined by the needs of env.py,

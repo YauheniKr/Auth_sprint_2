@@ -3,10 +3,18 @@ services:
     image: postgres:13.4-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    ports:
-      - 5432:5432
     env_file:
       - src/core/.env
+
+  nginx:
+    image: nginx:1.20
+    ports:
+      - "80:80"
+    volumes:
+      - ./src/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./src/nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - auth_api
 
   auth_api:
     container_name: auth_api
@@ -20,12 +28,14 @@ services:
       - 8000:8000
     env_file:
       - src/core/.env
+    entrypoint: >
+      sh -c " python3 /src/services/wait_for_postgres.py
+      && alembic upgrade head
+      && gunicorn wsgi_app:app -b 0.0.0.0:8000 -w 2 --log-level debug --timeout 0"
 
   redis:
     container_name: redis_container
     image: redis:6.2.6
-    ports:
-      - 6379:6379
 
 volumes:
   postgres_data:

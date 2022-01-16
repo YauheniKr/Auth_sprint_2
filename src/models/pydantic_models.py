@@ -1,7 +1,10 @@
 import datetime
+from typing import Optional
 
 import orjson
-from pydantic import BaseModel as PydanticBaseModel, UUID4
+from pydantic import UUID4
+from pydantic import BaseModel as PydanticBaseModel
+from pydantic import Field
 
 
 def orjson_dumps(v, *, default):
@@ -27,9 +30,18 @@ class RoleUserModel(BaseModel):
     role_name: str
 
 
-class AuthHistoryModel(BaseModel):
+class AuthHistoryBase(BaseModel):
     id: UUID4
     timestamp: datetime.datetime
     user_agent: str
     ipaddress: str
     device: str = None
+
+
+class AuthHistoryModel(BaseModel):
+    page: int
+    limit: int
+    count: int
+    previous: str = ''
+    next: str = ''
+    results: Optional[list[AuthHistoryBase]] = Field(default_factory=list)

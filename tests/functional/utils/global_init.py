@@ -1,10 +1,8 @@
 import sqlalchemy
 import sqlalchemy.orm
 
-from tests.functional.settings import test_settings as settings
-from tests.functional.models.model_role import Role
-from tests.functional.models.model_user import User
 from tests.functional.models.model_base import ModelBase
+from tests.functional.settings import test_settings as settings
 
 __factory = None
 username = settings.POSTGRES_USER
