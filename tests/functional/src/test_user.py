@@ -8,7 +8,7 @@ from flask_jwt_extended import decode_token
 class TestsUserApi:
 
     def test_user_create(self):
-        url = f'http://192.168.88.131:8000/api/v1/auth/user/signup'
+        url = f'http://localhost:5000/api/v1/auth/user/signup/'
         data = {
             'username': 'user111',
             'password': '12311',
@@ -19,7 +19,7 @@ class TestsUserApi:
         assert user_answer.status_code == HTTPStatus.OK
 
     def test_user_update(self, users, tokens):
-        url = f'http://auth_api:8000/api/v1/auth/user/me'
+        url = f'http://localhost:5000/api/v1/auth/user/me/'
         data = {'email': 'fake@yamdb.fake'}
         access = tokens['access_token']
         headers = {
@@ -31,7 +31,7 @@ class TestsUserApi:
         assert user_answer.status_code == HTTPStatus.OK
 
     def test_user_login(self, users):
-        url = f'http://auth_api:8000/api/v1/auth/user/login'
+        url = f'http://localhost:5000/api/v1/auth/user/login/'
         data = {
             'username': 'user1',
             'password': '123',
@@ -46,7 +46,7 @@ class TestsUserApi:
         assert 'refresh_token' in user_answer.json()
 
     def test_user_logout(self, users, tokens, redis_session):
-        url = f'http://auth_api:8000/api/v1/auth/user/logout'
+        url = f'http://localhost:5000/api/v1/auth/user/logout/'
         access = tokens['access_token']
         headers = {
             'Authorization': f'Bearer {access}',
@@ -58,7 +58,7 @@ class TestsUserApi:
         assert decode_token(access)['jti'] == jti
 
     def test_user_refresh_token(self, users, tokens, redis_session):
-        url = f'http://auth_api:8000//api/v1/auth/token/refresh'
+        url = f'http://localhost:5000/api/v1/auth/token/refresh/'
         refresh = tokens['refresh_token']
         headers = {
             'Authorization': f'Bearer {refresh}',
@@ -70,7 +70,7 @@ class TestsUserApi:
         assert 'refresh_token' in user_answer.json()
 
     def test_user_take_auth_history(self, users):
-        url = f'http://auth_api:8000/api/v1/auth/user/login'
+        url = f'http://localhost:5000/api/v1/auth/user/login/'
         data = {
             'username': users[1].username,
             'password': '123',
@@ -80,7 +80,7 @@ class TestsUserApi:
             'Content-Type': 'application/json'
         }
         tokens = requests.post(url, data=json_data, headers=headers).json()
-        url = 'http://auth_api:8000/api/v1/auth/user/history'
+        url = 'http://localhost:5000/api/v1/auth/user/history/'
         access = tokens['access_token']
         headers = {
             'Authorization': f'Bearer {access}',
@@ -88,4 +88,4 @@ class TestsUserApi:
         }
         history = requests.get(url, headers=headers)
         assert history.status_code == HTTPStatus.OK
-        assert len(history.json()) == 1
+        assert len(history.json()['results']) == 1
