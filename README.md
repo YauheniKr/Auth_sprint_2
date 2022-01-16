@@ -46,4 +46,5 @@ docker-compose -f docker-compose.test.yaml up -d --build. Для тестиро�
 docker exec -it auth_api flask superuser create <username> <password> <email>
 
 Приглашение [BlueDeep](https://github.com/BigDeepBlue) отправлено 
-ССылка на [репозиторий](https://github.com/YauheniKr/Auth_sprint_1) с работой
+
+Ссылка на [репозиторий](https://github.com/YauheniKr/Auth_sprint_1) с работой
