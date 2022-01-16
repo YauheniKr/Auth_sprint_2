@@ -2,9 +2,9 @@ import uuid
 from http import HTTPStatus
 from typing import Union
 
-from flask import request, Blueprint
+from flask import Blueprint, request
 from flask_pydantic import validate
-from flask_restful import Resource, Api
+from flask_restful import Api, Resource
 
 from src.db.global_init import create_session
 from src.models.pydantic_models import RoleModel, RoleUserModel
@@ -180,9 +180,9 @@ class RoleCreate(Resource):
         role = RolesRequest(session)
         role = role.create_role(json_data)
         if not role:
-            return f'Роль с данными параметрами уже существует', HTTPStatus.CONFLICT
+            return 'Роль с данными параметрами уже существует', HTTPStatus.CONFLICT
         elif role['msg'] == 'superuser':
-            return f'Роль superuser можно создать только консольной командой', HTTPStatus.CONFLICT
+            return 'Роль superuser можно создать только консольной командой', HTTPStatus.CONFLICT
         session.close()
         return {'msg': 'Роль создана'}
 
@@ -268,7 +268,7 @@ class RoleUserCreateDelete(Resource):
         user_role = RoleUserRequest(session)
         user_role = user_role.user_add_role(json_data)
         if not user_role:
-            return f'User с данной ролью уже существует', HTTPStatus.CONFLICT
+            return 'User с данной ролью уже существует', HTTPStatus.CONFLICT
         elif user_role.status_code == 403:
             return user_role
         return user_role
@@ -305,7 +305,7 @@ class RoleUserCreateDelete(Resource):
         user_role = user_role.user_delete_role(json_data)
         session.close()
         if not user_role:
-            return f'User не существует', HTTPStatus.NOT_FOUND
+            return 'User не существует', HTTPStatus.NOT_FOUND
         return user_role
 
 
