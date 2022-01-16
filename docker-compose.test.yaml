@@ -40,11 +40,10 @@ services:
     build:
       context: tests
     depends_on:
-      - postgres
-      - redis
       - auth_api
     entrypoint: >
-      sh -c "pytest /tests/functional/src -v"
+      sh -c "python3 functional/utils/wait_for_api.py
+      && pytest /tests/functional/src -v"
 
   redis:
     container_name: redis_container
