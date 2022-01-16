@@ -1,8 +1,8 @@
-"""Base migration
+"""Base revision
 
-Revision ID: fbb4fbd7511b
+Revision ID: e72d21131006
 Revises: 
-Create Date: 2022-01-09 21:08:03.127615
+Create Date: 2022-01-16 01:48:09.938831
 
 """
 import sqlalchemy as sa
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = 'fbb4fbd7511b'
+revision = 'e72d21131006'
 down_revision = None
 branch_labels = None
 depends_on = None
