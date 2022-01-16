@@ -258,6 +258,8 @@ class RoleUserCreateDelete(Resource):
         responses:
           200:
             description: Роль добавлена
+          403:
+            description: Пользователь не корректен
           409:
             description: Пользователь с данной ролью уже существует
         """
@@ -292,6 +294,8 @@ class RoleUserCreateDelete(Resource):
         responses:
           200:
             description: Роль удалена
+          403:
+            description: Пользователь не корректен
           409:
             description: Пользователь не существует
         """
@@ -302,7 +306,7 @@ class RoleUserCreateDelete(Resource):
         session.close()
         if not user_role:
             return f'User не существует', HTTPStatus.NOT_FOUND
-        return {"msg": "role deleted"}
+        return user_role
 
 
 class CheckUserRole(Resource):
