@@ -8,7 +8,6 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
-
 sys.path = ['', '..'] + sys.path[1:]
 
 # this is the Alembic Config object, which provides
