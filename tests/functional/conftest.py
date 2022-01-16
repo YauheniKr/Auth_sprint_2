@@ -114,3 +114,20 @@ def tokens(users, redis_session):
     expires = datetime.fromtimestamp(decoded_token["exp"]) - datetime.now()
     redis_session.setex(name=str(users[0].id), value=jti, time=expires)
     return token
+
+
+@pytest.fixture(scope='function')
+def admin_tokens(users, redis_session):
+    user_id = str(users[1].id)
+    flask_app()
+    access_token = create_access_token(identity=user_id, additional_claims={"is_administrator": True})
+    refresh_token = create_refresh_token(identity=user_id, additional_claims={"is_administrator": True})
+    token = {
+        'access_token': access_token,
+        'refresh_token': refresh_token
+    }
+    decoded_token = decode_token(refresh_token)
+    jti = decoded_token["jti"]
+    expires = datetime.fromtimestamp(decoded_token["exp"]) - datetime.now()
+    redis_session.setex(name=str(users[1].id), value=jti, time=expires)
+    return token
