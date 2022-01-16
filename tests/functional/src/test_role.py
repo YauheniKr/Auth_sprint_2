@@ -2,7 +2,6 @@ import json
 from http import HTTPStatus
 
 import requests
-import pytest
 
 
 class TestsRoleApi:
@@ -51,7 +50,6 @@ class TestsRoleApi:
         assert role_answer.status_code == HTTPStatus.OK
         assert len(role_answer.json()) == 2
 
-    #@pytest.mark.skip()
     def test_user_roles_status_create(self, roles, users, tokens):
         url = 'http://nginx/api/v1/auth/role/user/'
         data = {
@@ -67,7 +65,6 @@ class TestsRoleApi:
         role_answer = requests.post(url, data=json_data, headers=headers)
         assert role_answer.status_code == HTTPStatus.FORBIDDEN
 
-    #@pytest.mark.skip()
     def test_user_roles_status_delete(self, roles, users, tokens, redis_session):
         url = 'http://nginx/api/v1/auth/role/user/'
         data = {
@@ -82,7 +79,6 @@ class TestsRoleApi:
         role_answer = requests.delete(url, data=json_data, headers=headers)
         assert role_answer.status_code == HTTPStatus.FORBIDDEN
 
-    #@pytest.mark.skip()
     def test_user_roles_admin_status_create(self, roles, users, admin_tokens):
         url = 'http://nginx/api/v1/auth/role/user/'
         data = {
