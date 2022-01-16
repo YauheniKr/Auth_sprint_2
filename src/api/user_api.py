@@ -1,12 +1,12 @@
 from http import HTTPStatus
 
-from flask import request, Blueprint, make_response
+from flask import Blueprint, make_response, request
 from flask_pydantic import validate
-from flask_restful import Resource, Api
+from flask_restful import Api, Resource
 from jwt import ExpiredSignatureError
 
 from src.db.global_init import create_session
-from src.models.pydantic_models import AuthHistoryModel, AuthHistoryBase
+from src.models.pydantic_models import AuthHistoryBase, AuthHistoryModel
 from src.services.user import AuthHistoryRecord, TokenRequest, UserRequest
 from src.services.utils import get_paginated_list
 
@@ -54,7 +54,7 @@ class UserCreate(Resource):
         user = UserRequest(session)
         user = user.signup(json_data)
         if not user:
-            return f'Пользователь с данными параметрами уже существует', HTTPStatus.CONFLICT
+            return 'Пользователь с данными параметрами уже существует', HTTPStatus.CONFLICT
         session.close()
         return {'msg': 'Пользователь создан'}
 
