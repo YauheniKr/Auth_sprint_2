@@ -343,8 +343,8 @@ class CheckUserRole(Resource):
         return RoleUserModel(role_name=user_role_status['role_name'], role_weight=user_role_status['role_weight'])
 
 
-api.add_resource(RoleGetUpdateDelete, '/role/<string:role_id>')
+api.add_resource(RoleGetUpdateDelete, '/role/<string:role_id>/')
 api.add_resource(RoleCreate, '/role/')
 api.add_resource(RolesGet, '/roles/')
 api.add_resource(RoleUserCreateDelete, '/role/user/')
-api_status.add_resource(CheckUserRole, '/role/user/status')
+api_status.add_resource(CheckUserRole, '/role/user/status/')

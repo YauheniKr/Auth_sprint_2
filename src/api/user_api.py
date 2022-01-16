@@ -1,8 +1,9 @@
 from http import HTTPStatus
 
-from flask import request, Blueprint
+from flask import request, Blueprint, make_response
 from flask_pydantic import validate
 from flask_restful import Resource, Api
+from jwt import ExpiredSignatureError
 
 from src.db.global_init import create_session
 from src.models.pydantic_models import AuthHistoryModel, AuthHistoryBase
@@ -234,8 +235,11 @@ class GetUserAuthHistory(Resource):
         """
         session = create_session()
         auth_history = AuthHistoryRecord(session)
-        auth_history = auth_history.get_auth_record()
-        session.close()
+        try:
+            auth_history = auth_history.get_auth_record()
+            session.close()
+        except ExpiredSignatureError:
+            return make_response({'msg': 'token expired'}, 401)
         history = [AuthHistoryBase(id=record.id, timestamp=record.timestamp, user_agent=record.user_agent,
                                    ipaddress=record.ip_address, device=record.device)
                    for record in auth_history]
@@ -277,9 +281,10 @@ class TokenRefresh(Resource):
         token = token.refresh_token()
         return token
 
-user_api.add_resource(UserCreate, '/user/signup')
-user_api.add_resource(UserLogin, '/user/login')
-user_api.add_resource(UserLogout, '/user/logout')
-user_api.add_resource(UserUpdate, '/user/me')
-user_api.add_resource(GetUserAuthHistory, '/user/history')
-token_api.add_resource(TokenRefresh, '/token/refresh')
+
+user_api.add_resource(UserCreate, '/user/signup/')
+user_api.add_resource(UserLogin, '/user/login/')
+user_api.add_resource(UserLogout, '/user/logout/')
+user_api.add_resource(UserUpdate, '/user/me/')
+user_api.add_resource(GetUserAuthHistory, '/user/history/')
+token_api.add_resource(TokenRefresh, '/token/refresh/')
