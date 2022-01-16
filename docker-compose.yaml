@@ -6,6 +6,16 @@ services:
     env_file:
       - src/core/.env
 
+  nginx:
+    image: nginx:1.20
+    ports:
+      - "80:80"
+    volumes:
+      - ./src/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./src/nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - auth_api
+
   auth_api:
     container_name: auth_api
     build:
