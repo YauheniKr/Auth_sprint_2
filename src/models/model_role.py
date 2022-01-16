@@ -1,8 +1,7 @@
 import uuid
 
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship, backref
 
 from src.models.model_base import ModelBase
 
@@ -14,8 +13,6 @@ class Role(ModelBase):
     role_name = Column(String, unique=True, nullable=False)
     role_weight = Column(Integer, unique=True, nullable=False)
     description = Column(String(255))
-
-
 
     def __repr__(self):
         return f'{self.role_name}'

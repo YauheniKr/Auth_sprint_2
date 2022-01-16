@@ -1,7 +1,5 @@
 from datetime import datetime
-from uuid import UUID
 
-from flask_jwt_extended import decode_token
 from redis.client import StrictRedis as Redis
 
 from src.db.redis_storage import redis_conn

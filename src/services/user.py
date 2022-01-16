@@ -1,11 +1,13 @@
-from flask import request, make_response, jsonify
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt, get_jwt_identity, \
-    decode_token
+from flask import make_response, request
+from flask_jwt_extended import (create_access_token, create_refresh_token,
+                                decode_token, get_jwt, get_jwt_identity,
+                                jwt_required)
+from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from src.models.model_user import User, AuthHistory
-from src.services.redis_service import RedisTokenStorage, InvalidTokenError
+from src.models.model_user import AuthHistory, User
+from src.services.redis_service import InvalidTokenError, RedisTokenStorage
 
 
 class UserRequest:
@@ -24,20 +26,27 @@ class UserRequest:
         return {"msg": "role added"}
 
     def login(self):
+        additional_claims = None
         auth = request.json
         if not auth or not auth['username'] or not auth['password']:
-            return make_response('username or password incorrect', 401)
+            return make_response('username or password absent', 401)
         user = self.session.query(User).filter_by(username=auth['username']).first()
         self.session.commit()
         if not user:
             return make_response('User not found', 404)
+        if user.role and user.role[0].role_name == 'superuser':
+            additional_claims = {"is_administrator": True}
         ipaddress = request.remote_addr
         user_agent = request.user_agent.string
         device = request.user_agent.platform
         history = AuthHistory(user_id=user.id, user_agent=user_agent, ip_address=ipaddress, device=device)
         if check_password_hash(user.password, auth['password']):
-            access_token = create_access_token(identity=user.id)
-            refresh_token = create_refresh_token(identity=user.id)
+            if additional_claims:
+                access_token = create_access_token(identity=user.id, additional_claims=additional_claims)
+                refresh_token = create_refresh_token(identity=user.id, additional_claims=additional_claims)
+            else:
+                access_token = create_access_token(identity=user.id)
+                refresh_token = create_refresh_token(identity=user.id)
             token = {
                 'access_token': access_token,
                 'refresh_token': refresh_token
@@ -78,6 +87,7 @@ class TokenRequest:
 
     @jwt_required(refresh=True)
     def refresh_token(self):
+        additional_claims = None
         token = get_jwt()
         identity = get_jwt_identity()
         redis_service = RedisTokenStorage()
@@ -87,8 +97,10 @@ class TokenRequest:
             return make_response('Token is absent or incorrect', 401,
                                  {'Authentication': 'Token is absent or incorrect'})
         else:
-            access_token = create_access_token(identity)
-            refresh_token = create_refresh_token(identity)
+            if token.get('is_administrator'):
+                additional_claims = {"is_administrator": True}
+            access_token = create_access_token(identity, additional_claims=additional_claims)
+            refresh_token = create_refresh_token(identity, additional_claims=additional_claims)
             token = {
                 'access_token': access_token,
                 'refresh_token': refresh_token
@@ -107,6 +119,6 @@ class AuthHistoryRecord:
     @jwt_required()
     def get_auth_record(self):
         user_id = get_jwt()['sub']
-        auth_record = self.session.query(AuthHistory).filter_by(user_id = user_id)
+        auth_record = self.session.query(AuthHistory).filter_by(user_id=user_id).order_by(desc(AuthHistory.timestamp))
         self.session.commit()
         return auth_record
