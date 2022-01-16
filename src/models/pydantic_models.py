@@ -2,8 +2,9 @@ import datetime
 from typing import Optional
 
 import orjson
+from pydantic import UUID4
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import UUID4, Field
+from pydantic import Field
 
 
 def orjson_dumps(v, *, default):
