@@ -5,7 +5,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 from src.api.role_api import roles_blueprint, roles_status_blueprint
-from src.api.user_api import user_blueprint, token_blueprint
+from src.api.user_api import token_blueprint, user_blueprint
 from src.commands import usersbp
 from src.core.config import settings
 
