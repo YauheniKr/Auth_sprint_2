@@ -15,7 +15,7 @@ usersbp = Blueprint('superuser', __name__)
 @click.argument('email')
 def create_superuser(username, password, email):
     session = create_session()
-    user = session.query(User).filter(username == username, email == email).all()
+    user = session.query(User).filter_by(username=username, email=email).first()
     session.commit()
     if not user:
         password = generate_password_hash(password)
