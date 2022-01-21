@@ -37,12 +37,12 @@ def get_paginated_list(results, url, page, limit):
     if page == 1:
         obj['previous'] = ""
     else:
-        obj['previous'] = f'{url}?page={page-1}&limit={limit}'
+        obj['previous'] = f'{url}?page={page - 1}&limit={limit}'
     # make next url
     if page * limit > count:
         obj['next'] = ""
     else:
-        obj['next'] = f'{url}?page={page+1}&limit={limit}'
+        obj['next'] = f'{url}?page={page + 1}&limit={limit}'
     # finally extract result according to bounds
-    obj['results'] = results[limit*(page - 1):page * limit]
+    obj['results'] = results[limit * (page - 1):page * limit]
     return obj
