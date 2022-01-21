@@ -1,5 +1,5 @@
 from flasgger import Swagger
-from flask import Flask
+from flask import Flask, request, make_response
 from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -28,6 +28,37 @@ app.register_blueprint(roles_blueprint)
 app.register_blueprint(roles_status_blueprint)
 app.register_blueprint(user_blueprint)
 app.register_blueprint(token_blueprint)
+
+from jaeger_client import Config
+from flask_opentracing import FlaskTracer
+
+
+@app.before_request
+def before_request():
+    request_id = request.headers.get('X-Request-Id')
+    if not request_id:
+        return make_response('X-Request-Id not found', 404)
+
+
+config_data = {
+    'sampler': {
+        'type': 'const',
+        'param': 1,
+    },
+    'local_agent': {
+        'reporting_host': '192.168.88.131',
+        'reporting_port': '6831',
+    },
+    'logging': True,
+}
+
+
+def _setup_jaeger():
+    config = Config(config=config_data, service_name="movies-api", validate=True, )
+    return config.initialize_tracer()
+
+
+tracer = FlaskTracer(_setup_jaeger, app=app)
 
 if __name__ == '__main__':
     app.run()
