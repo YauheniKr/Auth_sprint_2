@@ -1,8 +1,8 @@
 services:
-  postgres:
+  postgres_test:
     image: postgres:13.4-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres_test_data:/var/lib/postgresql/data/
     ports:
       - 5432:5432
     env_file:
@@ -52,4 +52,4 @@ services:
       - 6379:6379
 
 volumes:
-  postgres_data:
+  postgres_test_data:

@@ -14,7 +14,7 @@ class TestSettings(BaseSettings):
     SERVICE_PORT: int = 8000
 
     # Настройки Postgres
-    POSTGRES_HOST: str = 'postgres'
+    POSTGRES_HOST: str = 'postgres_test'
     POSTGRES_PORT: str = '5432'
     POSTGRES_USER: str = 'postgres'
     POSTGRES_PASSWORD: str = 'postgres'
