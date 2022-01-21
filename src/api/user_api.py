@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+import opentracing
 from flask import Blueprint, make_response, request
 from flask_pydantic import validate
 from flask_restful import Api, Resource
@@ -97,9 +98,12 @@ class UserLogin(Resource):
           401:
             description: Пароль некорректен
         """
+        from src.app import tracer
+        parent_span = tracer.get_span()
         session = create_session()
         user = UserRequest(session)
-        user = user.login()
+        with opentracing.tracer.start_span(__name__, child_of=parent_span) as span:
+            user = user.login()
         session.close()
         return user
 
