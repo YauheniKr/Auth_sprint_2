@@ -14,7 +14,7 @@ services:
       context: src
     restart: always
     depends_on:
-      - postgres
+      - postgres_test
       - redis
     ports:
       - 8000:8000
