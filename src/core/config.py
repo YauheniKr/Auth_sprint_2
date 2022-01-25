@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
 
     # Настройки Postgres
-    POSTGRES_HOST: str = 'postgres'
+    POSTGRES_HOST: str = '192.168.23.132'
     POSTGRES_PORT: str = '5432'
     POSTGRES_USER: str = 'postgres'
     POSTGRES_PASSWORD: str = 'postgres'
@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     SECRET_KEY = hashlib.md5('super_secret'.encode()).hexdigest()
     ACCESS_EXPIRES = timedelta(minutes=60)
     REFRESH_EXPIRES = timedelta(days=15)
+
+    #Настройки Yandex
+    YANDEX_ID: str
+    YANDEX_PASWORD: str
+
+
 
     class Config:
         case_sensitive = True
