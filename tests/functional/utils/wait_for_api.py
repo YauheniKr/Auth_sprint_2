@@ -7,7 +7,7 @@ import http
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-URL = 'http://auth_api:8000/apidocs/'
+URL = 'http://nginx/apidocs/'
 
 
 def make_request():
