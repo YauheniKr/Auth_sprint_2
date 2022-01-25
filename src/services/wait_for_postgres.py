@@ -16,7 +16,8 @@ def check_postgres_availability():
                                   f" host={settings.POSTGRES_HOST} password={settings.POSTGRES_PASSWORD}")
             logger.info("Postgres Running")
             exit(0)
-        except psycopg2.Error:
+        except psycopg2.Error as e:
+            logger.info(e)
             logger.error("Postgres is not available. Sleep for 10 sec")
             sleep(10)
         else:
