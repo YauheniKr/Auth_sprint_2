@@ -76,3 +76,4 @@ zope.interface==5.4.0
 python-dotenv
 flask_opentracing
 jaeger_client
+Authlib
