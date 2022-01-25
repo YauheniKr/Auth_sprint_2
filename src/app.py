@@ -32,13 +32,6 @@ app.register_blueprint(user_blueprint)
 app.register_blueprint(token_blueprint)
 app.register_blueprint(oauth_blueprint)
 
-app.config['OAUTH_CREDENTIALS'] = {
-    'yandex': {
-        'id': settings.YANDEX_ID,
-        'secret': settings.YANDEX_PASWORD
-    },
-}
-
 from jaeger_client import Config
 from flask_opentracing import FlaskTracer
 
