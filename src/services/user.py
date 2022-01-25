@@ -1,13 +1,15 @@
+from http import HTTPStatus
 from flask import make_response, request
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 decode_token, get_jwt, get_jwt_identity,
                                 jwt_required)
-from sqlalchemy import desc
+from sqlalchemy import desc, or_
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from src.models.model_user import AuthHistory, User
+from src.models.model_user import AuthHistory, User, SocialAccount
 from src.services.redis_service import InvalidTokenError, RedisTokenStorage
+from src.services.utils import generate_tokens
 
 
 class UserRequest:
@@ -17,17 +19,17 @@ class UserRequest:
 
     def signup(self, create_data):
         create_data['password'] = generate_password_hash(create_data['password'], method='sha256')
-        role = User(**create_data)
+        user = User(**create_data)
         try:
-            self.session.add(role)
+            self.session.add(user)
             self.session.commit()
         except IntegrityError:
             return None
-        return {"msg": "role added"}
+        return make_response({'msg': 'user created'}, 200)
 
     def login(self):
-        additional_claims = None
         auth = request.json
+        is_admin = False
         if not auth or not auth['username'] or not auth['password']:
             return make_response('username or password absent', 401)
         user = self.session.query(User).filter_by(username=auth['username']).first()
@@ -35,25 +37,13 @@ class UserRequest:
         if not user:
             return make_response('User not found', 404)
         if user.role and user.role[0].role_name == 'superuser':
-            additional_claims = {"is_administrator": True}
-        ipaddress = request.remote_addr
-        user_agent = request.user_agent.string
-        device = request.user_agent.platform
-        history = AuthHistory(user_id=user.id, user_agent=user_agent, ip_address=ipaddress, device=device)
+            is_admin = True
         if check_password_hash(user.password, auth['password']):
-            if additional_claims:
-                access_token = create_access_token(identity=user.id, additional_claims=additional_claims)
-                refresh_token = create_refresh_token(identity=user.id, additional_claims=additional_claims)
-            else:
-                access_token = create_access_token(identity=user.id)
-                refresh_token = create_refresh_token(identity=user.id)
-            token = {
-                'access_token': access_token,
-                'refresh_token': refresh_token
-            }
-            redis_service = RedisTokenStorage()
-            refresh_token = decode_token(refresh_token)
-            redis_service.add_token_to_database(refresh_token)
+            token = generate_tokens(user.id, is_admin)
+            ipaddress = request.remote_addr
+            user_agent = request.user_agent.string
+            device = request.user_agent.platform
+            history = AuthHistory(user_id=user.id, user_agent=user_agent, ip_address=ipaddress, device=device)
             self.session.add(history)
             self.session.commit()
             return token
@@ -82,12 +72,26 @@ class UserRequest:
         self.session.commit()
         return make_response('User data updated', 200)
 
+    def auth_login(self, user_data):
+        user = self.session.query(User).filter(
+            or_(User.username == user_data['login'], User.email == user_data['default_email'])).first()
+        social_user = self.session.query(SocialAccount).filter(SocialAccount.social_id == user_data['id']).first()
+        if not user:
+            user = User(username=user_data['login'], email=user_data['default_email'])
+            self.session.add(user)
+            self.session.commit()
+        if not social_user:
+            self.session.add(SocialAccount(social_id=user_data['id'], social_name=user_data['login'], user_id=user.id))
+            self.session.commit()
+        tokens = generate_tokens(user.id)
+        return tokens
+
 
 class TokenRequest:
 
     @jwt_required(refresh=True)
     def refresh_token(self):
-        additional_claims = None
+        is_admin = False
         token = get_jwt()
         identity = get_jwt_identity()
         redis_service = RedisTokenStorage()
@@ -98,16 +102,8 @@ class TokenRequest:
                                  {'Authentication': 'Token is absent or incorrect'})
         else:
             if token.get('is_administrator'):
-                additional_claims = {"is_administrator": True}
-            access_token = create_access_token(identity, additional_claims=additional_claims)
-            refresh_token = create_refresh_token(identity, additional_claims=additional_claims)
-            token = {
-                'access_token': access_token,
-                'refresh_token': refresh_token
-            }
-            redis_service = RedisTokenStorage()
-            refresh_token = decode_token(refresh_token)
-            redis_service.add_token_to_database(refresh_token)
+                is_admin = True
+            token = generate_tokens(identity, is_admin)
         return token
 
 
