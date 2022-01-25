@@ -50,7 +50,7 @@ def get_paginated_list(results, url, page, limit):
     return obj
 
 
-def generate_tokens(user_id, is_admin: bool):
+def generate_tokens(user_id, is_admin: bool = False):
     additional_claims = {}
     if is_admin:
         additional_claims = {"is_administrator": True}
