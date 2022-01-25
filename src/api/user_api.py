@@ -57,7 +57,7 @@ class UserCreate(Resource):
         if not user:
             return 'Пользователь с данными параметрами уже существует', HTTPStatus.CONFLICT
         session.close()
-        return {'msg': 'Пользователь создан'}
+        return user
 
 
 class UserLogin(Resource):
